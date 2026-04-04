@@ -185,38 +185,38 @@
 # execution_time = timeit.timeit("''.join(str(n) for n in range(100))", number=10000)
 # print(execution_time)
 
+from typing import Any
+
+
 from abc import ABC, abstractmethod
 from collections import defaultdict
 
 class Report(ABC):
     @abstractmethod
-    def generate(self, rows: list[dict[str, str]]) -> list[tuple[str, float]]:
+    def generate(self, rows: list[dict[str, str]]) -> list[tuple[str, float]]: # float заменить на дженерик
         pass
 
 class MaxCoffeeReport(Report):
-    name: str = "max"
+    name: str = "max" 
 
     def generate(self, rows: list[dict[str, str]]) -> list[tuple[str, float]]:
-        data = defaultdict(list)
+        maxCoffeeByStud = defaultdict[str, int](int) # добавляем больше типизации, указываем более говорящее значение переменной
         for row in rows:
             student = row["student"]
             coffee_spent = int(row["coffee_spent"])
-            data[student].append(coffee_spent)
+            # если студент уже есть в словаре, то берем максимальное значение, иначе берем текущее значение
+            # тем самым уходим от вложенного цикла 
+            maxCoffeeByStud[student] = max(maxCoffeeByStud[student], coffee_spent) if maxCoffeeByStud[student] else coffee_spent
 
-        maxes = [
-                    (student, max(values)) 
-                    for student, values in data.items() 
-                    if values
-                ]
 
-        return sorted(maxes, key=lambda x: x[1], reverse=True)
+        return sorted(maxCoffeeByStud, key=lambda x: x[1], reverse=True)
 
 
 class AvgCoffeeReport(Report):
     name: str = "avg"
 
     def generate(self, rows: list[dict[str, str]]) -> list[tuple[str, float]]:
-        data = defaultdict(list)
+        data = defaultdict[str, list](list)
         for row in rows:
             student = row["student"]
             coffee_spent = int(row["coffee_spent"])
